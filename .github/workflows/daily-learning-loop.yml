@@ -1,12 +1,12 @@
 # Daily Learning Loop — 每日学习循环
-# 每天 UTC 11:00 触发，生成日报、复习题与状态更新
+# 每天北京时间 08:00 (UTC 0:00) 触发，生成日报、复习题与状态更新
 # 所有变更通过 Pull Request 提交，需要人工审阅后 merge
 
 name: Daily Learning Loop
 
 on:
   schedule:
-    - cron: "0 11 * * *"   # 每天 11:00 UTC，根据时区调整
+    - cron: "0 0 * * *"   # 每天 UTC 0:00 = 北京时间 08:00
   workflow_dispatch:        # 支持手动触发
 
 permissions:
