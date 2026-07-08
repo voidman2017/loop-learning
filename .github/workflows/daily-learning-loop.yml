@@ -55,6 +55,15 @@ jobs:
         run: |
           python scripts/run_daily_learning_loop.py
 
+      - name: 运行自动研究（方案 A + 方案 B）
+        if: steps.killswitch.outputs.skip == 'false'
+        env:
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
+          LLM_MODEL: ${{ secrets.LLM_MODEL }}
+        run: |
+          python scripts/run_research_loop.py || echo "Research loop completed (non-critical)"
+
       - name: 验证输出
         if: steps.killswitch.outputs.skip == 'false'
         run: |
@@ -70,6 +79,7 @@ jobs:
             --allow "state/review-queue.json" \
             --allow "content/reports/daily/" \
             --allow "content/dashboards/" \
+            --allow "content/research/" \
             --allow "SOURCES.md"
 
       - name: 检查是否有变更
@@ -94,7 +104,7 @@ jobs:
         run: |
           BRANCH="loop/daily-$(date -u +%Y-%m-%d)"
           git checkout -B "$BRANCH"
-          git add STATE.md REVIEW-QUEUE.md SOURCES.md state/ content/reports/daily/ content/dashboards/
+          git add STATE.md REVIEW-QUEUE.md SOURCES.md state/ content/reports/ content/dashboards/
           git commit -m "loop(daily): generate report and review tasks for $(date -u +%Y-%m-%d)"
           git push -u origin "$BRANCH" --force-with-lease
           echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"

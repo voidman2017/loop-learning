@@ -1,2 +1,4 @@
 # AI Learning Loop Site — Python dependencies
 httpx>=0.28.0
+feedparser>=6.0.0
+pyyaml>=6.0

@@ -1,0 +1,32 @@
+# Research Sources
+
+## RSS 订阅源（方案 B — 自动扫描）
+
+系统每天自动扫描以下 RSS 源，发现与当前学习主题相关的文章。
+
+```yaml
+sources:
+  - name: "Hacker News"
+    url: "https://news.ycombinator.com/rss"
+    lang: "en"
+    tags: ["tech", "general"]
+
+  - name: "ArXiv ML RSS"
+    url: "https://rss.arxiv.org/rss/cs.AI"
+    lang: "en"
+    tags: ["AI", "ML", "research"]
+
+  - name: "GitHub Trending"
+    url: "https://github.com/trending.rss"
+    lang: "en"
+    tags: ["tech", "open-source"]
+
+  - name: "InfoQ 中文"
+    url: "https://www.infoq.cn/feed"
+    lang: "zh"
+    tags: ["tech", "architecture"]
+```
+
+## 手动添加
+
+如需添加订阅源，编辑此文件后提交 PR。**禁止 AI 自动修改本文件。**
