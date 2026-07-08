@@ -175,10 +175,10 @@ This is a placeholder report. LLM API key not configured.
         import httpx
         import json as json_module
 
-        # 使用 httpx 直接调用，避免 Anthropic SDK 的 header 格式问题
+        # 使用 httpx 直接调用
         headers = {
             "Content-Type": "application/json",
-            "x-api-key": api_key,
+            "Authorization": f"Bearer {api_key}",
             "anthropic-version": "2023-06-01",
         }
 
