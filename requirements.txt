@@ -1,2 +1,2 @@
 # AI Learning Loop Site — Python dependencies
-anthropic>=0.70.0
+httpx>=0.28.0

@@ -139,9 +139,13 @@ def call_llm(system_prompt: str, user_message: str) -> str:
       - LLM_BASE_URL: API 基础地址
       - LLM_MODEL: 模型名称
     """
-    api_key = os.environ.get("LLM_API_KEY", "")
-    base_url = os.environ.get("LLM_BASE_URL", "https://ark.cn-beijing.volces.com/api/coding")
-    model = os.environ.get("LLM_MODEL", "DeepSeek-V4-Flash")
+    # 去除可能存在的换行符或空格，避免 HTTP header 解析错误
+    api_key = os.environ.get("LLM_API_KEY", "").strip()
+    base_url = os.environ.get("LLM_BASE_URL", "https://ark.cn-beijing.volces.com/api/coding").strip()
+    # 确保 base_url 末尾没有多余的斜杠
+    if base_url.endswith("/"):
+        base_url = base_url.rstrip("/")
+    model = os.environ.get("LLM_MODEL", "DeepSeek-V4-Flash").strip()
 
     if not api_key:
         print("  WARNING: LLM_API_KEY not set, using placeholder output")
@@ -168,32 +172,54 @@ This is a placeholder report. LLM API key not configured.
 """
 
     try:
-        from anthropic import Anthropic
+        import httpx
+        import json as json_module
 
-        client = Anthropic(
-            api_key=api_key,
-            base_url=base_url,
-        )
+        # 使用 httpx 直接调用，避免 Anthropic SDK 的 header 格式问题
+        headers = {
+            "Content-Type": "application/json",
+            "x-api-key": api_key,
+            "anthropic-version": "2023-06-01",
+        }
 
-        response = client.messages.create(
-            model=model,
-            max_tokens=8192,
-            system=system_prompt,
-            messages=[
+        payload = {
+            "model": model,
+            "max_tokens": 8192,
+            "system": system_prompt,
+            "messages": [
                 {"role": "user", "content": user_message}
             ],
-        )
+        }
 
-        # 提取返回文本
+        # 组装完整的请求 URL
+        request_url = f"{base_url}/messages"
+
+        print(f"  Request URL: {request_url}")
+        print(f"  Model: {model}")
+        print(f"  User message: {len(user_message)} chars")
+
+        with httpx.Client(timeout=300.0) as client:
+            response = client.post(
+                request_url,
+                headers=headers,
+                json=payload,
+            )
+
+        if response.status_code != 200:
+            print(f"  API Error: status={response.status_code}")
+            print(f"  Response: {response.text[:500]}")
+            response.raise_for_status()
+
+        result = response.json()
         content = ""
-        for block in response.content:
-            if block.type == "text":
-                content += block.text
+        for block in result.get("content", []):
+            if block.get("type") == "text":
+                content += block.get("text", "")
 
         return content
 
     except ImportError:
-        print("  ERROR: anthropic package not installed. Run: pip install anthropic")
+        print("  ERROR: httpx package not installed. Run: pip install httpx")
         raise
     except Exception as e:
         print(f"  ERROR: LLM call failed: {e}")
