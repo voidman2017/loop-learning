@@ -1,0 +1,21 @@
+# CODEOWNERS — 定义仓库路径的责任人
+
+# 默认所有人为你本人
+* @princed
+
+# 内容层
+/content/                    @princed
+/STATE.md                    @princed
+/REVIEW-QUEUE.md             @princed
+/state/                      @princed
+/SOURCES.md                  @princed
+
+# 控制层（必须 code owner review）
+/.github/workflows/          @princed
+/scripts/                    @princed
+/skills/                     @princed
+/prompts/                    @princed
+/LOOP.md                     @princed
+/loop-constraints.md         @princed
+/loop-budget.md              @princed
+/site/                       @princed

@@ -1,0 +1,154 @@
+# Daily Learning Loop — 每日学习循环
+# 每天 UTC 11:00 触发，生成日报、复习题与状态更新
+# 所有变更通过 Pull Request 提交，需要人工审阅后 merge
+
+name: Daily Learning Loop
+
+on:
+  schedule:
+    - cron: "0 11 * * *"   # 每天 11:00 UTC，根据时区调整
+  workflow_dispatch:        # 支持手动触发
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  daily-loop:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: 设置 Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: 安装依赖
+        run: |
+          python -m pip install -r requirements.txt
+
+      - name: 检查 kill switch
+        id: killswitch
+        run: |
+          # 检查 STATE.md 中 kill_switch 是否为 true
+          if grep -q "kill_switch: true" STATE.md; then
+            echo "KILL SWITCH ACTIVE — skipping loop"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          elif [ "${{ vars.LOOP_PAUSED }}" = "true" ]; then
+            echo "LOOP_PAUSED=true — skipping loop"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 运行 AI Daily Learning Loop
+        if: steps.killswitch.outputs.skip == 'false'
+        env:
+          # TODO: 配置你的 API Key
+          # OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_API_KEY: ""
+        run: |
+          python scripts/run_daily_learning_loop.py
+
+      - name: 验证输出
+        if: steps.killswitch.outputs.skip == 'false'
+        run: |
+          python scripts/validate_outputs.py
+
+      - name: 守卫变更文件路径
+        if: steps.killswitch.outputs.skip == 'false'
+        run: |
+          python scripts/guard_changed_files.py \
+            --allow "STATE.md" \
+            --allow "REVIEW-QUEUE.md" \
+            --allow "state/learning-state.json" \
+            --allow "state/review-queue.json" \
+            --allow "content/reports/daily/" \
+            --allow "content/dashboards/" \
+            --allow "SOURCES.md"
+
+      - name: 检查是否有变更
+        id: changes
+        if: steps.killswitch.outputs.skip == 'false'
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 配置 Git
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: 创建分支并提交
+        if: steps.changes.outputs.changed == 'true'
+        id: commit
+        run: |
+          BRANCH="loop/daily-$(date -u +%Y-%m-%d)"
+          git checkout -B "$BRANCH"
+          git add STATE.md REVIEW-QUEUE.md SOURCES.md state/ content/reports/daily/ content/dashboards/
+          git commit -m "loop(daily): generate report and review tasks for $(date -u +%Y-%m-%d)"
+          git push -u origin "$BRANCH" --force-with-lease
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: 创建 Pull Request
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --base main \
+            --head "${{ steps.commit.outputs.branch }}" \
+            --title "loop(daily): update daily report, state and review queue" \
+            --body "
+          ## Scope
+          Automated daily learning loop update.
+
+          ## Inputs
+          - STATE.md / state/learning-state.json
+          - REVIEW-QUEUE.md / state/review-queue.json
+          - Recent notes and research
+          - Recent daily reports
+
+          ## Files changed
+          - STATE.md
+          - REVIEW-QUEUE.md
+          - SOURCES.md
+          - state/learning-state.json
+          - state/review-queue.json
+          - content/reports/daily/*
+          - content/dashboards/*
+
+          ## Risk
+          Low. Content-only changes. No workflow/script/theme modifications.
+
+          ## Validation
+          - Output validation passed
+          - Changed-path guard passed
+          - No restricted files modified
+
+          ## Human review checklist
+          - [ ] 结论是否可信
+          - [ ] 复习题是否有价值
+          - [ ] STATE 是否被错误改写
+          - [ ] 是否存在幻觉或过度推断
+          - [ ] 所有不确定结论已标记待确认
+          "
+
+      - name: 记录运行日志
+        if: always()
+        run: |
+          echo "| $(date -u +%Y-%m-%d) | Daily | ${{ job.status }} | ${{ steps.changes.outputs.changed }} | - | - |" >> loop-run-log.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add loop-run-log.md
+          git commit -m "loop(daily): update run log" || true
+          git push origin main || true

@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "updated_at": "2026-07-08T00:00:00Z",
+  "phase": "L1",
+  "kill_switch": false,
+  "focus_window": "2026-07",
+  "current_theme": [],
+  "confidence": "low",
+  "active_goals": [
+    "完成系统搭建并成功生成第一期日报",
+    "完成连续 7 天稳定运行",
+    "建立初始复习队列"
+  ],
+  "progress": {
+    "total_study_hours_this_week": 0,
+    "new_notes_count": 0,
+    "new_research_count": 0,
+    "pending_review_count": 0,
+    "high_risk_forget_topics": []
+  },
+  "blind_spots": [],
+  "pending_human_decisions": [
+    "确认 Daily Loop 运行时间",
+    "配置 API Key"
+  ],
+  "recent_changes": [
+    {
+      "date": "2026-07-08",
+      "description": "系统初始化"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "title": "AI Learning Loop",
+  "items": [
+    {"label": "Home", "path": "/"},
+    {"label": "Today", "path": "/today"},
+    {"label": "Daily Reports", "path": "/daily"},
+    {"label": "Review Queue", "path": "/review-queue"}
+  ]
+}

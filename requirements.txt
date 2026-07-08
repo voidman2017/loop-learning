@@ -1,0 +1,7 @@
+# AI Learning Loop Site — Python dependencies
+# 安装: python -m pip install -r requirements.txt
+
+# 核心（M VP 暂不依赖外部库，仅预留）
+# openai>=1.0.0
+# pyyaml>=6.0
+# jsonschema>=4.0

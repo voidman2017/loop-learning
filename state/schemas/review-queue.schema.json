@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Review Queue Schema",
+  "description": "复习队列的 canonical JSON 格式",
+  "type": "object",
+  "required": ["version", "updated_at", "items"],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Schema 版本号"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "最后更新时间"
+    },
+    "items": {
+      "type": "array",
+      "description": "复习条目列表",
+      "items": {
+        "type": "object",
+        "required": ["id", "topic", "created_at", "priority", "status"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$",
+            "description": "唯一标识符"
+          },
+          "topic": { "type": "string", "description": "复习主题" },
+          "source_note": { "type": "string", "description": "关联笔记路径" },
+          "source_research": { "type": "string", "description": "关联研究文档路径" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "last_reviewed_at": { "type": "string", "format": "date-time" },
+          "due_at": { "type": "string", "format": "date-time" },
+          "priority": {
+            "type": "string",
+            "enum": ["high", "medium", "low"],
+            "description": "优先级"
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": ["easy", "medium", "hard"],
+            "description": "难度"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "completed", "archived"],
+            "description": "状态"
+          },
+          "question": { "type": "string", "description": "复习问题" },
+          "answer_stub": { "type": "string", "description": "答案要点" },
+          "citations": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "来源引用 IDs"
+          }
+        }
+      }
+    },
+    "stats": {
+      "type": "object",
+      "properties": {
+        "pending": { "type": "integer" },
+        "completed": { "type": "integer" },
+        "archived": { "type": "integer" }
+      }
+    }
+  }
+}

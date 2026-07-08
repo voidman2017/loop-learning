@@ -1,0 +1,80 @@
+# Validate Content — 内容验证 workflow
+# 在每次 PR 和 push 到 main 时运行，确保内容质量与合规性
+
+name: Validate Content
+
+on:
+  pull_request:
+    paths:
+      - "content/**"
+      - "state/**"
+      - "STATE.md"
+      - "REVIEW-QUEUE.md"
+      - "SOURCES.md"
+  push:
+    branches: [main]
+    paths:
+      - "content/**"
+      - "state/**"
+      - "STATE.md"
+      - "REVIEW-QUEUE.md"
+      - "SOURCES.md"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: 设置 Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: 安装依赖
+        run: |
+          python -m pip install -r requirements.txt
+
+      - name: 验证输出
+        run: |
+          python scripts/validate_outputs.py
+
+      - name: 守卫变更文件路径（仅 PR）
+        if: github.event_name == 'pull_request'
+        run: |
+          python scripts/guard_changed_files.py \
+            --allow "STATE.md" \
+            --allow "REVIEW-QUEUE.md" \
+            --allow "SOURCES.md" \
+            --allow "state/" \
+            --allow "content/" \
+            --base "origin/main"
+
+      - name: 检查文件大小
+        run: |
+          # 检查是否有超过 1MB 的文本文件
+          find content/ state/ -name "*.md" -o -name "*.json" -o -name "*.yml" | \
+          while read -r f; do
+            size=$(wc -c < "$f")
+            if [ "$size" -gt 1048576 ]; then
+              echo "File too large: $f ($size bytes)"
+              exit 1
+            fi
+          done
+          echo "All files within size limits."
+
+      - name: JSON 格式校验
+        run: |
+          for f in state/*.json; do
+            if [ -f "$f" ]; then
+              python -c "import json; json.load(open('$f'))" && echo "  Valid: $f"
+            fi
+          done
