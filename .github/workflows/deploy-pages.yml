@@ -10,8 +10,10 @@ on:
       - "content/**"
       - "site/**"
       - "state/**"
+      - "scripts/**"
       - "STATE.md"
       - "REVIEW-QUEUE.md"
+      - "SOURCES.md"
   workflow_dispatch:
 
 permissions:
