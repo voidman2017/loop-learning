@@ -116,55 +116,51 @@ jobs:
         run: |
           BRANCH="${{ steps.commit.outputs.branch }}"
           PR_TITLE="loop(daily): update daily report, state and review queue"
-          PR_BODY="## Scope
-          Automated daily learning loop update.
+          cat > /tmp/pr-body.md << 'PRBODY'
+## Scope
+Automated daily learning loop update.
 
-          ## Inputs
-          - STATE.md / state/learning-state.json
-          - REVIEW-QUEUE.md / state/review-queue.json
-          - Recent notes and research
-          - Recent daily reports
+## Inputs
+- STATE.md / state/learning-state.json
+- REVIEW-QUEUE.md / state/review-queue.json
+- Recent notes and research
+- Recent daily reports
 
-          ## Files changed
-          - STATE.md
-          - REVIEW-QUEUE.md
-          - SOURCES.md
-          - state/learning-state.json
-          - state/review-queue.json
-          - content/reports/daily/*
-          - content/dashboards/*
-          - content/research/*
+## Files changed
+- STATE.md
+- REVIEW-QUEUE.md
+- SOURCES.md
+- state/learning-state.json
+- state/review-queue.json
+- content/reports/daily/*
+- content/dashboards/*
+- content/research/*
 
-          ## Risk
-          Low. Content-only changes. No workflow/script/theme modifications.
+## Risk
+Low. Content-only changes. No workflow/script/theme modifications.
 
-          ## Validation
-          - Output validation passed
-          - Changed-path guard passed
-          - No restricted files modified
+## Validation
+- Output validation passed
+- Changed-path guard passed
+- No restricted files modified
 
-          ## Human review checklist
-          - [ ] 结论是否可信
-          - [ ] 复习题是否有价值
-          - [ ] STATE 是否被错误改写
-          - [ ] 是否存在幻觉或过度推断
-          - [ ] 所有不确定结论已标记待确认
-          "
+## Human review checklist
+- [ ] 结论是否可信
+- [ ] 复习题是否有价值
+- [ ] STATE 是否被错误改写
+- [ ] 是否存在幻觉或过度推断
+- [ ] 所有不确定结论已标记待确认
+PRBODY
 
           # 检查是否已有 PR
-          EXISTING_PR=$(gh pr list --head "$BRANCH" --json number --jq '.[0].number' 2>/dev/null || echo "")
-          if [ -n "$EXISTING_PR" ]; then
-            echo "PR #${EXISTING_PR} already exists — updating"
-            gh pr edit "$EXISTING_PR" --body "$PR_BODY" || true
+          PR_NUM=$(gh pr view --json number --jq '.number' 2>/dev/null || true)
+          if [ -n "$PR_NUM" ] && [ "$PR_NUM" != "null" ]; then
+            echo "PR #${PR_NUM} already exists — updating"
+            gh pr edit "$PR_NUM" --body "$(cat /tmp/pr-body.md)" || true
           else
             echo "Creating new PR..."
-            gh pr create --base main --head "$BRANCH" --title "$PR_TITLE" --body "$PR_BODY"
+            gh pr create --base main --head "$BRANCH" --title "$PR_TITLE" --body "$(cat /tmp/pr-body.md)"
           fi
-          - [ ] 复习题是否有价值
-          - [ ] STATE 是否被错误改写
-          - [ ] 是否存在幻觉或过度推断
-          - [ ] 所有不确定结论已标记待确认
-          "
 
       - name: 记录运行日志
         if: always()
