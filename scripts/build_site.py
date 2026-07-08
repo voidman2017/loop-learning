@@ -38,42 +38,44 @@ def markdown_to_html(markdown_text: str) -> str:
     """
     html = markdown_text
 
-    # 代码块
+    # 代码块：匹配 ```lang\n...\n```
     html = re.sub(
-        r'```(\w*)\\n(.+?)\\n```',
-        r'<pre><code class="language-\\1">\\2</code></pre>',
+        r'```(\w*)\n(.*?)\n```',
+        lambda m: '<pre><code class="language-{}">{}</code></pre>'.format(m.group(1), m.group(2)),
         html,
         flags=re.DOTALL,
     )
 
-    # 行内代码
-    html = re.sub(r'`([^`]+)`', r'<code>\\1</code>', html)
+    # 行内代码：`code`
+    html = re.sub(r'`([^`]+)`', lambda m: '<code>{}</code>'.format(m.group(1)), html)
 
-    # 标题
+    # 标题：## Title
     for i in range(6, 0, -1):
         html = re.sub(
-            rf'^{"#" * i}\\s+(.+)$',
-            rf'<h{i}>\\1</h{i}>',
+            r'^{} +(.+?)$'.format('#' * i),
+            lambda m, level=i: '<h{}>{}</h{}>'.format(level, m.group(1), level),
             html,
             flags=re.MULTILINE,
         )
 
-    # 粗体
-    html = re.sub(r'\\*\\*(.+?)\\*\\*', r'<strong>\\1</strong>', html)
+    # 粗体：**text**
+    html = re.sub(r'\*\*(.+?)\*\*', lambda m: '<strong>{}</strong>'.format(m.group(1)), html)
 
-    # 列表
-    html = re.sub(r'^- (.+)$', r'<li>\\1</li>', html, flags=re.MULTILINE)
-    html = re.sub(r'((<li>.*</li>\\n?)+)', r'<ul>\\1</ul>', html)
+    # 列表项：- item
+    html = re.sub(r'^- (.+)$', lambda m: '<li>{}</li>'.format(m.group(1)), html, flags=re.MULTILINE)
 
-    # 段落
+    # 将连续 li 包裹成 ul
+    html = re.sub(r'(<li>.*?</li>(?:\n<li>.*?</li>)*)', lambda m: '<ul>{}</ul>'.format(m.group(1)), html)
+
+    # 段落：未被 HTML 标签包裹的文本块
     paragraphs = []
-    for block in html.split("\\n\\n"):
+    for block in html.split('\n\n'):
         block = block.strip()
-        if block and not block.startswith("<"):
-            block = f"<p>{block}</p>"
+        if block and not block.startswith('<'):
+            block = '<p>{}</p>'.format(block)
         paragraphs.append(block)
 
-    return "\\n\\n".join(paragraphs)
+    return '\n\n'.join(paragraphs)
 
 
 def get_nav_config() -> dict:
