@@ -191,8 +191,8 @@ This is a placeholder report. LLM API key not configured.
             ],
         }
 
-        # 组装完整的请求 URL
-        request_url = f"{base_url}/messages"
+        # 组装请求 URL：Anthropic 协议消息接口路径为 /v1/messages
+        request_url = f"{base_url}/v1/messages"
 
         print(f"  Request URL: {request_url}")
         print(f"  Model: {model}")
