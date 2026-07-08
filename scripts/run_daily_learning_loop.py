@@ -317,8 +317,6 @@ def main():
     # Step 3: 调用 LLM
     print("\\n[3/5] Calling LLM...")
     output = call_llm(system_prompt, user_message)
-    print("\\n[3/5] Calling LLM...")
-    output = call_llm(system_prompt, context)
     print(f"  Output length: {len(output)} chars")
 
     # Step 4: 写入输出
