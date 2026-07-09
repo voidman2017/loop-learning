@@ -1,5 +1,6 @@
 {
   "title": "AI Learning Loop",
+  "basePath": "/loop-learning",
   "items": [
     {"label": "Home", "path": "/"},
     {"label": "Today", "path": "/today"},

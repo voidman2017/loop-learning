@@ -102,8 +102,9 @@ def render_page(title: str, content_html: str, nav: dict) -> str:
     渲染完整 HTML 页面。
     使用内联样式以保持 MVP 简洁。
     """
+    base_path = nav.get("basePath", "")
     nav_items = "".join(
-        f'<a href="{item["path"]}" style="color: #ccc; text-decoration: none; margin-left: 1.5rem;">{item["label"]}</a>'
+        f'<a href="{base_path}{item["path"]}" style="color: #ccc; text-decoration: none; margin-left: 1.5rem;">{item["label"]}</a>'
         for item in nav.get("items", [])
     )
 
@@ -112,6 +113,7 @@ def render_page(title: str, content_html: str, nav: dict) -> str:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="{base_path}/">
     <title>{title} — {nav["title"]}</title>
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
@@ -218,7 +220,7 @@ def build_today():
     return "<p>No dashboard data yet. The daily learning loop will generate one.</p>"
 
 
-def build_daily_list():
+def build_daily_list(base_path: str = ""):
     """生成日报列表页面。"""
     daily_dir = CONTENT_DIR / "reports" / "daily"
     if not daily_dir.exists():
@@ -235,7 +237,7 @@ def build_daily_list():
         # 提取第一行作为摘要
         first_line = content.strip().split("\\n")[0] if content.strip() else "No content"
         items.append(
-            f'<li><a href="/daily/{date_str}">{date_str}</a> — {first_line}</li>'
+            f'<li><a href="{base_path}/daily/{date_str}">{date_str}</a> — {first_line}</li>'
         )
 
     return "<ul>" + "\n".join(items) + "</ul>"
@@ -262,7 +264,7 @@ def main():
     pages = {
         "index": ("Home", build_index()),
         "today": ("Today's Dashboard", build_today()),
-        "daily/index": ("Daily Reports", build_daily_list()),
+        "daily/index": ("Daily Reports", build_daily_list(nav.get("basePath", ""))),
         "review-queue": ("Review Queue", build_review_queue()),
     }
 
