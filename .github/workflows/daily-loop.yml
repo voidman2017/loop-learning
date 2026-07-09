@@ -116,4 +116,14 @@ jobs:
             gh pr create --base main --head "$BRANCH" --title "$PR_TITLE" --body "Automated daily learning loop update."
           fi
 
+      - name: Update run log
+        if: always()
+        run: |
+          echo "| $(date -u +%Y-%m-%d) | Daily | ${{ job.status }} | ${{ steps.changes.outputs.changed }} | - | - |" >> loop-run-log.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add loop-run-log.md
+          git commit -m "loop(daily): update run log" || true
+          git push origin main || true
+
       - run: echo "done"
