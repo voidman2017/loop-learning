@@ -75,4 +75,75 @@ jobs:
             --allow "content/research/" \
             --allow "SOURCES.md"
 
+      - name: Check for changes
+        id: changes
+        if: steps.killswitch.outputs.skip == 'false'
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configure Git
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Create branch and commit
+        if: steps.changes.outputs.changed == 'true'
+        id: commit
+        run: |
+          BRANCH="loop/daily-$(date -u +%Y-%m-%d)"
+          git checkout -B "$BRANCH"
+          git add STATE.md REVIEW-QUEUE.md SOURCES.md state/ content/reports/ content/dashboards/
+          git commit -m "loop(daily): generate report and review tasks for $(date -u +%Y-%m-%d)"
+          git push -u origin "$BRANCH" --force-with-lease
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update Pull Request
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="${{ steps.commit.outputs.branch }}"
+          PR_TITLE="loop(daily): update daily report, state and review queue"
+          cat > /tmp/pr-body.md << 'PRBODY'
+## Scope
+Automated daily learning loop update.
+
+## Files changed
+- STATE.md, REVIEW-QUEUE.md, SOURCES.md
+- state/learning-state.json, state/review-queue.json
+- content/reports/daily/*, content/dashboards/*, content/research/*
+
+## Risk
+Low. Content-only changes.
+
+## Human review checklist
+- [ ] 结论是否可信
+- [ ] 复习题是否有价值
+- [ ] STATE 是否被错误改写
+- [ ] 是否存在幻觉或过度推断
+- [ ] 所有不确定结论已标记待确认
+PRBODY
+
+          PR_NUM=$(gh pr view --json number --jq '.number' 2>/dev/null || true)
+          if [ -n "$PR_NUM" ] && [ "$PR_NUM" != "null" ]; then
+            gh pr edit "$PR_NUM" --body "$(cat /tmp/pr-body.md)" || true
+          else
+            gh pr create --base main --head "$BRANCH" --title "$PR_TITLE" --body "$(cat /tmp/pr-body.md)"
+          fi
+
+      - name: Update run log
+        if: always()
+        run: |
+          echo "| $(date -u +%Y-%m-%d) | Daily | ${{ job.status }} | ${{ steps.changes.outputs.changed }} | - | - |" >> loop-run-log.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add loop-run-log.md
+          git commit -m "loop(daily): update run log" || true
+          git push origin main || true
+
       - run: echo "done"
