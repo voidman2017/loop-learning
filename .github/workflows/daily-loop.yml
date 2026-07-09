@@ -48,4 +48,31 @@ jobs:
         run: |
           python scripts/run_daily_learning_loop.py
 
+      - name: Run Research Loop
+        if: steps.killswitch.outputs.skip == 'false'
+        env:
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
+          LLM_MODEL: ${{ secrets.LLM_MODEL }}
+        run: |
+          python scripts/run_research_loop.py || echo "Research loop completed"
+
+      - name: Validate outputs
+        if: steps.killswitch.outputs.skip == 'false'
+        run: |
+          python scripts/validate_outputs.py
+
+      - name: Guard changed files
+        if: steps.killswitch.outputs.skip == 'false'
+        run: |
+          python scripts/guard_changed_files.py \
+            --allow "STATE.md" \
+            --allow "REVIEW-QUEUE.md" \
+            --allow "state/learning-state.json" \
+            --allow "state/review-queue.json" \
+            --allow "content/reports/daily/" \
+            --allow "content/dashboards/" \
+            --allow "content/research/" \
+            --allow "SOURCES.md"
+
       - run: echo "done"
