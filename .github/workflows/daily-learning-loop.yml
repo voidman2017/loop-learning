@@ -7,7 +7,7 @@ name: Daily Learning Loop
 on:
   schedule:
     - cron: "0 0 * * *"   # 每天 UTC 0:00 = 北京时间 08:00
-  workflow_dispatch: {}
+  workflow_dispatch:
 
 permissions:
   contents: write
