@@ -1,14 +1,285 @@
 # Today's Dashboard
 
-> 系统初始化中。首次 Daily Learning Loop 运行后将自动更新。
+以下是按照指令生成的文件内容。
 
 ## Quick Stats
 
-- **Date**: 2026-07-08
-- **Status**: System initialization
-- **Daily reports**: 0
-- **Review items**: 0
+- Date: 2026-08-16
+- Status: Report generated
 
 ## Recent Activity
 
-*No activity yet. First daily loop will populate this dashboard.*
+以下是按照指令生成的文件内容。
+
+## 今日日报
+
+`content/reports/daily/2026-08-16.md`
+
+```markdown
+# 日报：2026-08-16
+
+## 今日学习综述
+
+今天是恢复 Daily Learning Loop 运行的日子。距上次更新（2026-07-09）已过去约五周。本次没有新增外部学习材料，主要完成：
+
+- 同步两个状态文件，消除 `STATE.md` 与 `learning-state.json` 的版本不一致。
+- 基于已有笔记 `init-system-setup.md` 初始化复习队列。
+- 将当前研究主题锁定为 Vue Router / 前端路由。
+
+## 关键发现与结论
+
+1. 项目采用四层架构：内容层、展示层、控制层、状态层，职责分离清晰。（来源：`content/notes/init-system-setup.md`）
+2. 安全边界通过文件白名单、硬校验脚本、PR 审阅和 CODEOWNERS 实现，这为 AI 自主修改提供了可控范围。（来源：`content/notes/init-system-setup.md`）
+3. 当前状态存在不一致：`STATE.md` 已处于 L2，而 `learning-state.json` 仍停留在 L1。本次已将两者同步至 L2。（来源：状态文件比对）
+
+## 知识盲区识别
+
+- Vue Router 的核心路由匹配算法尚未整理成笔记。（待确认）
+- 前端路由与 History API、hash 模式的关系尚未研究。（待确认）
+- 动态路由和嵌套路由在 Vue Router 中的实现细节尚未验证。（待确认）
+
+## 待办事项
+
+- [ ] 完成 Vue Router 核心原理笔记，补充来源
+- [ ] 每天执行一次复习队列
+- [ ] 确认 Daily Loop 运行时间是否符合当前节奏
+```
+
+## 今日仪表盘
+
+`content/dashboards/today.md`
+
+```markdown
+# 今日仪表盘
+
+## 学习状态摘要
+
+- 阶段：L2
+- 当前主题：Vue Router / 前端路由
+- 信心指数：低
+- 上次有效更新：2026-07-09（已中断约 5 周）
+
+## 进展数字
+
+- 本周学习小时数：0
+- 新增笔记：0
+- 新增研究：0
+- 待复习：5
+- 已完成：0
+- 已归档：0
+
+## 高风险遗忘主题
+
+- Vue Router 核心路由匹配原理
+- 前端路由模式（hash / history）
+```
+
+## 复习队列更新
+
+`state/review-queue.json`
+
+```json
+{
+  "version": 1,
+  "updated_at": "2026-08-16T00:00:00Z",
+  "items": [
+    {
+      "id": "20260816-001",
+      "created": "2026-08-16T00:00:00Z",
+      "source": "content/notes/init-system-setup.md",
+      "question": "项目如何限制 AI 只能修改特定文件？",
+      "status": "pending",
+      "due": "2026-08-16T00:00:00Z",
+      "confidence": "low"
+    },
+    {
+      "id": "20260816-002",
+      "created": "2026-08-16T00:00:00Z",
+      "source": "content/notes/init-system-setup.md",
+      "question": "内容层、展示层、控制层、状态层分别承担什么职责？",
+      "status": "pending",
+      "due": "2026-08-16T00:00:00Z",
+      "confidence": "low"
+    },
+    {
+      "id": "20260816-003",
+      "created": "2026-08-16T00:00:00Z",
+      "source": "content/notes/init-system-setup.md",
+      "question": "为什么采用“主要借鉴 + 选择性使用工具”的 loop-engineering 策略？",
+      "status": "pending",
+      "due": "2026-08-16T00:00:00Z",
+      "confidence": "low"
+    },
+    {
+      "id": "20260816-004",
+      "created": "2026-08-16T00:00:00Z",
+      "source": "待确认（Vue Router 研究）",
+      "question": "Vue Router 的路由匹配核心原理是什么？",
+      "status": "pending",
+      "due": "2026-08-16T00:00:00Z",
+      "confidence": "low"
+    },
+    {
+      "id": "20260816-005",
+      "created": "2026-08-16T00:00:00Z",
+      "source": "待确认（Vue Router 研究）",
+      "question": "hash 模式和 history 模式有什么区别？",
+      "status": "pending",
+      "due": "2026-08-16T00:00:00Z",
+      "confidence": "low"
+    }
+  ],
+  "stats": {
+    "pending": 5,
+    "completed": 0,
+    "archived": 0
+  }
+}
+```
+
+`REVIEW-QUEUE.md`
+
+```markdown
+# Review Queue
+
+> 待复习的知识点队列。由 Daily Learning Loop 自动维护。
+> 每次展示最近需要复习的 10~20 个条目。
+
+## Upcoming Reviews
+
+1. 项目如何限制 AI 只能修改特定文件？（来源：init-system-setup.md）
+2. 内容层、展示层、控制层、状态层分别承担什么职责？（来源：init-system-setup.md）
+3. 为什么采用“主要借鉴 + 选择性使用工具”的 loop-engineering 策略？（来源：init-system-setup.md）
+4. Vue Router 的路由匹配核心原理是什么？（待确认）
+5. hash 模式和 history 模式有什么区别？（待确认）
+
+---
+
+## Stats
+
+- 待复习：5
+- 已完成：0
+- 已归档：0
+```
+
+## 状态更新
+
+`STATE.md`
+
+```markdown
+---
+version: 2
+updated_at: 2026-08-16T00:00:00Z
+phase: L2
+kill_switch: false
+focus_window: "2026-08"
+current_theme: ["vue-router", "frontend-routing"]
+confidence: "low"
+---
+
+# Learning State
+
+## Current Focus
+
+- Vue Router 设计与实现研究
+- 前端路由核心原理
+- 从简化版到生产级路由系统的演进
+
+## Active Goals
+
+- 完成 Vue Router 研究课题
+- 维持 Daily Learning Loop 稳定运行
+- 建立并维护复习队列
+
+## Progress Snapshot
+
+- 2026-07-09：推进到 L2 学习阶段
+- 2026-08-16：恢复运行，同步状态文件，初始化复习队列
+
+## Blind Spots
+
+- Vue Router 核心路由匹配原理（待确认）
+- 前端路由模式（hash / history）的具体差异（待确认）
+- 状态文件一致性维护流程
+
+## Pending Human Decisions
+
+- 无
+
+## Recent Changes
+
+- 2026-08-16：恢复 Daily Learning Loop，生成日报与复习队列
+- 2026-07-09：推进到 L2 学习阶段，配置 API Key
+```
+
+`state/learning-state.json`
+
+```json
+{
+  "version": 2,
+  "updated_at": "2026-08-16T00:00:00Z",
+  "phase": "L2",
+  "kill_switch": false,
+  "focus_window": "2026-08",
+  "current_theme": ["vue-router", "frontend-routing"],
+  "confidence": "low",
+  "active_goals": [
+    "完成 Vue Router 研究课题",
+    "维持 Daily Learning Loop 稳定运行",
+    "建立并维护复习队列"
+  ],
+  "progress": {
+    "total_study_hours_this_week": 0,
+    "new_notes_count": 0,
+    "new_research_count": 0,
+    "pending_review_count": 5,
+    "high_risk_forget_topics": ["vue-router", "frontend-routing"]
+  },
+  "blind_spots": [
+    "Vue Router 核心路由匹配原理（待确认）",
+    "前端路由模式（hash / history）的具体差异（待确认）",
+    "状态文件一致性维护流程"
+  ],
+  "pending_human_decisions": [],
+  "recent_changes": [
+    {
+      "date": "2026-08-16",
+      "description": "恢复 Daily Learning Loop，生成日报与复习队列"
+    },
+    {
+      "date": "2026-07-09",
+      "description": "推进到 L2 学习阶段，配置 API Key"
+    }
+  ]
+}
+```
+
+## 变更摘要
+
+```json
+{
+  "change_summary": "恢复 Daily Learning Loop；同步 STATE.md 与 learning-state.json 至 L2/2026-08；初始化 5 条复习队列；生成今日日报和仪表盘。",
+  "files_changed": [
+    "STATE.md",
+    "state/learning-state.json",
+    "REVIEW-QUEUE.md",
+    "state/review-queue.json",
+    "content/reports/daily/2026-08-16.md",
+    "content/dashboards/today.md"
+  ],
+  "risk_level": "medium",
+  "new_review_items": 5,
+  "archived_items": 0,
+  "uncertain_claims": [
+    "Vue Router 的路由匹配核心原理（待确认）",
+    "hash 模式和 history 模式的区别（待确认）",
+    "动态路由和嵌套路由的实现细节（待确认）"
+  ],
+  "sources_used": [
+    "content/notes/init-system-setup.md",
+    "STATE.md",
+    "state/learning-state.json",
+    "REVIEW-QUEUE.md"
+  ]
+}
+```
